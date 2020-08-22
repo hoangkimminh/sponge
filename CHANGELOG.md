@@ -1,23 +1,60 @@
 # CHANGELOG
 
-## NEXT
+## Unreleased
 
-### Features
+### Added
 
-- Rename project to **Sponge**
-- Add `ScrapeCommandDto.metadata: boolean` option to auto extract metadata and article content
+- Add `GET /v1/renderer/ssr` route
+- Add `POST /v1/renderer/ssr` route
+- Add quota handling mechanism
+
+### Changed
+
+- Replace dotenv-flow with @nestjs/config
+
+### Removed
+
+- (BREAKING) Remove `/` and `/docs` routes from prod environment
+- Remove Saasify
+
+## v1.0.0-canary.1
+
+### Added
+
+- Add `GET /v1/renderer/csr`
+- Request validation
+
+### Changed
+
+- (BREAKING) API version is prefix, not suffix anymore
+- Increase headless browser timeout to 30s
+
+## v1.0.0-canary.0
+
+### Added
+
 - Add `POST /renderer/csr` route
+- Add `ScrapeCommandDto.metadata: boolean` option to auto extract metadata and article content
+- Add `InputTarget.multiple: boolean` option to scrape all elements matched by the provided CSS selector
 - Add domain blocking feature
 - Support HTTP proxy for CSR
-- Remove default HTML target when `ScrapeCommandDto.targets` is not provided or empty
-- Remove meaningless routes and redirect `GET /` to `GET /docs`
+- API versioning
+
+### Changed
+
+- Rename project to **Sponge**
 - Some internal architectural changes
 
-### Bugfixes
+### Removed
+
+- Remove default HTML target when `ScrapeCommandDto.targets` is not provided or empty
+- Remove meaningless routes and redirect `GET /` to `GET /docs`
+
+### Fixed
 
 - Fix @nestjs/swagger not recognize boolean type
 
-## V0.7.0
+## v0.7.0
 
 ### Features
 
@@ -32,7 +69,7 @@
 
 - Fix browsers won't start inside Docker
 
-## V0.6.0
+## v0.6.0
 
 ### Features
 

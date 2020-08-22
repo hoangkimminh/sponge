@@ -1,4 +1,4 @@
-import { HttpService, Injectable } from "@nestjs/common"
+import { Injectable } from "@nestjs/common"
 import metaReadability from "@night-watch-project/metascraper-readability"
 import { JSDOM } from "jsdom"
 import * as metaScraper from "metascraper"
@@ -42,10 +42,7 @@ export class ScraperService {
     metaVideo(),
   ])
 
-  public constructor(
-    private readonly httpService: HttpService,
-    private readonly rendererService: RendererService
-  ) {}
+  public constructor(private readonly renderer: RendererService) {}
 
   public async scrapeCSR(
     url: string,
@@ -55,7 +52,7 @@ export class ScraperService {
     headers?: Record<string, string>,
     proxy?: HttpProxy
   ): Promise<ScrapeResultDto> {
-    const html = await this.rendererService.renderCSR(url, blockAds, headers, proxy)
+    const html = await this.renderer.renderCSR(url, blockAds, headers, proxy)
     return this.scrapeWithHtml(url, targets, metadata, html)
   }
 
@@ -66,28 +63,7 @@ export class ScraperService {
     headers?: Record<string, string>,
     proxy?: HttpProxy
   ): Promise<ScrapeResultDto> {
-    const res = await this.httpService
-      .get(url, {
-        headers,
-        proxy: proxy
-          ? {
-              host: proxy.host,
-              port: proxy.port,
-              auth:
-                proxy.username && proxy.password
-                  ? {
-                      username: proxy.username,
-                      password: proxy.password,
-                    }
-                  : undefined,
-            }
-          : undefined,
-      })
-      .toPromise()
-    if (res.status < 200 || res.status >= 300 || !res.data) {
-      throw new Error(`Cannot send GET ${url}`)
-    }
-    const html = res.data
+    const html = await this.renderer.renderSSR(url, headers, proxy)
     return this.scrapeWithHtml(url, targets, metadata, html)
   }
 
@@ -108,30 +84,29 @@ export class ScraperService {
 
     return targets.map((target) => {
       const {
+        name,
+        description,
         cssSelector,
         attribute,
         type = TargetType.String,
+<<<<<<< HEAD
         name,
         description,
         multiple,
+=======
+        multiple = false,
+>>>>>>> 7025d65681cb10d27923e282251f60db24eb119c
       } = target
       let output: OutputTarget
 
-      if (multiple) {
-        const elements = document.querySelectorAll(cssSelector)
-        const targets: TargetItem[] = []
-        elements.forEach((element, i) => {
-          const value = this.scrapeElementValue(element, type, attribute)
-          targets.push({ index: i, value: value })
-        })
-        output = { cssSelector, attribute, type, targets, name, description }
-      } else {
-        const element = document.querySelector(cssSelector)
-        const value = this.scrapeElementValue(element, type, attribute)
-        output = { cssSelector, attribute, type, value, name, description }
+      let elements = Array.from(document.querySelectorAll(cssSelector))
+      if (!multiple) {
+        elements = elements.slice(0, 1)
       }
-
-      return output
+      const values = elements.map((element) => {
+        return this.scrapeElement(element, type, attribute)
+      })
+      return { name, description, cssSelector, attribute, type, multiple, values }
     })
   }
 
@@ -142,17 +117,13 @@ export class ScraperService {
     return this.metaScraper({ url, html })
   }
 
-  private scrapeElementValue(
-    element: Element | null,
-    type: TargetType,
-    attribute?: string
-  ) {
+  private scrapeElement(element: Element, type: TargetType, attribute?: string) {
     const rawValue = attribute
-      ? element?.getAttribute(attribute)
+      ? element.getAttribute(attribute)
       : type === TargetType.Html
-      ? element?.innerHTML
-      : element?.textContent
-    return this.parseRawValue(rawValue ?? null, type)
+      ? element.innerHTML
+      : element.textContent
+    return this.parseRawValue(rawValue, type)
   }
 
   private parseRawValue(

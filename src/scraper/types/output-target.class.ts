@@ -1,12 +1,11 @@
 import { TargetType } from "./target-type.enum"
-import { TargetItem } from "./target-item.class"
 
 export class OutputTarget {
+  name?: string
+  description?: string
   cssSelector: string
   attribute?: string
   type: TargetType
-  value?: string | number | null
-  name?: string
-  description?: string
-  targets?: TargetItem[]
+  multiple: boolean
+  values: Array<string | number | null>
 }
