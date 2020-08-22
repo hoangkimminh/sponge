@@ -21,7 +21,6 @@ import type { ScrapeResultDto } from "./dto/scrape-result.dto"
 import type { InputTarget } from "./types/input-target.class"
 import type { OutputTarget } from "./types/output-target.class"
 import { TargetType } from "./types/target-type.enum"
-import { TargetItem } from "./types/target-item.class"
 
 @Injectable()
 export class ScraperService {
@@ -89,15 +88,8 @@ export class ScraperService {
         cssSelector,
         attribute,
         type = TargetType.String,
-<<<<<<< HEAD
-        name,
-        description,
-        multiple,
-=======
         multiple = false,
->>>>>>> 7025d65681cb10d27923e282251f60db24eb119c
       } = target
-      let output: OutputTarget
 
       let elements = Array.from(document.querySelectorAll(cssSelector))
       if (!multiple) {
