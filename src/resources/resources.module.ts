@@ -1,6 +1,7 @@
 import { HttpModule, HttpService, Module } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { BlocklistProvider } from "./blocklist.provider"
+import { UserAgentsProvider } from "./user-agents.provider"
 
 const providers = [
   {
@@ -8,6 +9,13 @@ const providers = [
     inject: [ConfigService, HttpService],
     useFactory: (config: ConfigService, http: HttpService) => {
       return BlocklistProvider.init(config, http)
+    },
+  },
+  {
+    provide: UserAgentsProvider.providerName,
+    inject: [ConfigService, HttpService],
+    useFactory: (config: ConfigService, http: HttpService) => {
+      return UserAgentsProvider.init(config, http)
     },
   },
 ]
